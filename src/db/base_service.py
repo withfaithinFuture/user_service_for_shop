@@ -1,0 +1,14 @@
+import sqlalchemy as sa
+from sqlalchemy.orm import declarative_base
+
+
+metadata = sa.MetaData()
+
+
+class BaseServiceModel:
+    @classmethod
+    def on_conflict_constraint(cls) -> tuple | None:
+        return None
+
+
+Base = declarative_base(metadata=metadata, cls=BaseServiceModel)
