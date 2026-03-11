@@ -1,0 +1,1 @@
+# user_service_for_shop
