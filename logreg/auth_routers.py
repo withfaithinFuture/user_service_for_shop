@@ -14,7 +14,6 @@ async def register(
     request: RegisterRequest,
     session: AsyncSession = Depends(get_session)
 ):
-    """Регистрация нового пользователя"""
     auth_service = AuthService(session)
     user, result = await auth_service.register(request)
 
@@ -57,7 +56,6 @@ async def login(
 
 @router.get("/me", response_model=UserResponseSchema)
 async def get_auth_me(current_user: User = Depends(get_current_user)):
-    """Получение информации о текущем пользователе"""
     return {
         "userId": current_user.userId,
         "login": current_user.login,

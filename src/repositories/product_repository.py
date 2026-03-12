@@ -52,7 +52,7 @@ class ProductRepository:
                 'available': product.available,
                 'market': {
                     'marketId': market.marketId,
-                    'name': market.name
+                    'name': market.marketName
                 }
             })
 
