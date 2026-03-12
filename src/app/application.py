@@ -1,11 +1,10 @@
 from fastapi import FastAPI
-from fastapi.responses import UJSONResponse
 from starlette.middleware.cors import CORSMiddleware
 from src.routers.cart_routers import router as cart_router
 from src.routers.order_routers import router as order_router
 from src.routers.product_routers import router as product_router
 from src.routers.user_routers import router as user_router
-from src.routers.auth_routers import router as auth_router
+from logreg.auth_routers import router as auth_router
 from fastapi.openapi.utils import get_openapi
 
 

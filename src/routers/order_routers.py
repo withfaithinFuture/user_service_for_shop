@@ -1,9 +1,9 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from src.app.dependencies import get_order_service
-from src.schemas.order_schemas import CreateOrderRequestSchema, CreateOrderResponseSchema, OrderDetailResponseSchema
+from src.schemas.order_schemas import CreateOrderRequestSchema, CreateOrderResponseSchema
 from src.services.order_service import OrderService
-from src.core.security import get_current_user
+from logreg.security import get_current_user
 from src.models.user import User
 
 

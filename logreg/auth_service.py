@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from src.models.user import User
 from src.models.market import Market
 from src.models.user_token import UserToken
-from src.core.security import hash_password, verify_password, create_access_token
+from logreg.security import hash_password, verify_password, create_access_token
 from src.app.config import ACCESS_TOKEN_EXPIRE_MINUTES
 
 

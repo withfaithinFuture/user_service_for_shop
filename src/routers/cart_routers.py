@@ -4,7 +4,7 @@ from fastapi.params import Depends
 from src.services.cart_service import CartService
 from src.schemas.cart_schemas import AddToCartResponseSchema, CartResponseSchema, UpdateCartItemResponseSchema, \
     UpdateCartItemRequestSchema, DeleteCartItemResponseSchema, AddToCartRequestSchema
-from src.core.security import get_current_user
+from logreg.security import get_current_user
 from src.models.user import User
 from src.app.dependencies import get_cart_service
 

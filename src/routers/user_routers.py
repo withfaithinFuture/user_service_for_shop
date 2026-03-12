@@ -5,7 +5,7 @@ from src.core.exceptions import NotFoundError
 from src.models.user import User
 from src.app.dependencies import get_user_service
 from src.services.user_service import UserService
-from src.core.security import get_current_user
+from logreg.security import get_current_user
 
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
