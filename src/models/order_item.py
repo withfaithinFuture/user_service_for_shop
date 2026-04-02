@@ -12,12 +12,10 @@ class OrderItems(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     orderId: Mapped[UUID] = mapped_column(sa.ForeignKey('orders.orderId', ondelete='CASCADE'), nullable=False)
     orderMarketId: Mapped[UUID] = mapped_column(ForeignKey('order_markets.id'), default=uuid4)
-    productId: Mapped[UUID] = mapped_column(ForeignKey('products.id'), default=uuid4)
+    productId: Mapped[UUID] = mapped_column(sa.UUID, nullable=False)
     quantity: Mapped[int] = mapped_column(sa.INT)
     priceAtPurchase: Mapped[Decimal] = mapped_column(sa.DECIMAL(10, 2))
 
 
     order = relationship('Order', back_populates='order_items')
     order_market = relationship('OrderMarket', back_populates='order_items')
-    product = relationship('Product', back_populates='order_items', lazy='selectin')
-

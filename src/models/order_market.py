@@ -21,12 +21,11 @@ class OrderMarket(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     orderId: Mapped[UUID] = mapped_column(sa.ForeignKey('orders.orderId'), nullable=False)
-    marketId: Mapped[UUID] = mapped_column(sa.ForeignKey('market.marketId'), nullable=False)
+    marketId: Mapped[UUID] = mapped_column(sa.UUID, nullable=False)
     totalPrice: Mapped[Decimal] = mapped_column(sa.DECIMAL(10, 2))
     status: Mapped[OrderStatus] = mapped_column(sa.String, default=OrderStatus.GENERATED.value, nullable=False)
 
     order = relationship('Order', back_populates='order_market')
-    market = relationship('Market', back_populates='order_market')
     order_items = relationship('OrderItems', back_populates='order_market')
 
     __table_args__ = (

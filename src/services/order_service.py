@@ -1,3 +1,5 @@
+import httpx
+from fastapi import HTTPException
 import math
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,6 +8,10 @@ from src.core.exceptions import NotFoundError, NotEnoughStockError
 from src.repositories.order_repository import OrderRepository
 from src.repositories.cart_repository import CartRepository
 from src.schemas.order_schemas import CreateOrderRequestSchema
+from src.app.config import settings
+
+
+SELLER_SERVICE_URL = settings.SELLER_SERVICE_URL
 
 
 class OrderService:
@@ -15,29 +21,76 @@ class OrderService:
         self.cart_repository = CartRepository(session)
 
 
+    async def get_products_info(self, products_ids: list[UUID]) -> dict:
+        str_ids = [str(id) for id in products_ids]
+
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(f"{SELLER_SERVICE_URL}/info", json={"productIds": str_ids})
+                response.raise_for_status()
+                return {product['id']: product for product in response.json()}
+
+            except Exception:
+                raise HTTPException(status_code=503, detail="Сервис товаров недоступен")
+
+
+    async def reserve_products_at_seller(self, items_to_reserve: list[dict]):
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(f"{SELLER_SERVICE_URL}/reserve", json={"items": items_to_reserve})
+
+                if response.status_code == 400:
+                    raise HTTPException(status_code=400, detail=f"Ошибка резервирования: {response.text}")
+
+                response.raise_for_status()
+
+            except httpx.RequestError:
+                raise HTTPException(status_code=503, detail="Сервис товаров недоступен для резервирования")
+
+
     async def create_order_service(self, user_id: UUID, order_data: CreateOrderRequestSchema) -> dict:
         cart_items = await self.cart_repository.get_cart_items(user_id=user_id)
 
         if not cart_items:
             raise NotFoundError(object_id=user_id, object_type='cart')
 
+        product_ids = [item.id for item in cart_items]
+        cart_id = cart_items[0][0].cartId
+        products_info = self.get_products_info(products_ids=product_ids)
+
         total_order_price = 0.0
         markets_data = defaultdict(lambda: {"total": 0.0, "items": []})
-        cart_id = cart_items[0][0].cartId
+        items_for_reservation = []
 
-        for cart_item, product, market in cart_items:
-            if cart_item.quantity > product.available:
-                raise NotEnoughStockError(product_id=product.id, available=product.available, requested=cart_item.quantity)
+        for cart_item in cart_items:
+            id_str = str(cart_item.productId)
+            product_data = products_info.get(id_str)
 
-            item_price_total = float(product.price) * cart_item.quantity
+            if not product_data:
+                raise HTTPException(status_code=400, detail=f"Товар {id_str} больше недоступен")
+
+            if cart_item.quantity > product_data['available']:
+                raise NotEnoughStockError(product_id=cart_item.productId, available=product_data['available'],
+                                          requested=cart_item.quantity)
+
+            price = float(product_data['price'])
+            item_price_total = price * cart_item.quantity
             total_order_price += item_price_total
+            market_id = product_data['marketId']
 
-            markets_data[market.marketId]['total'] += item_price_total
-            markets_data[market.marketId]['items'].append({
-                "product_model": product,
+            markets_data[market_id]['total'] += item_price_total
+            markets_data[market_id]['items'].append({
+                "product_id": id_str,
                 "quantity": cart_item.quantity,
-                "price": float(product.price)
+                "price": price
             })
+
+            items_for_reservation.append({
+                "productId": id_str,
+                "quantity": cart_item.quantity
+            })
+
+        await self.reserve_products_at_seller(items_to_reserve=items_for_reservation)
 
         order_id = await self.order_repository.create_order_from_cart(user_id=user_id, order_data=order_data, total_order_price=total_order_price, markets_data=markets_data, cart_id=cart_id)
 
@@ -79,25 +132,27 @@ class OrderService:
         if not order_details:
             raise NotFoundError(object_id=order_id, object_type='Order')
 
-
+        product_ids = list(set([row.OrderItems.productId for row in order_details]))
+        product_info = await self.get_products_info(products_ids=product_ids)
         first_order = order_details[0][0]
         markets_dict = {}
 
-        for order, order_market, order_item, product, market in order_details:
-            market_id = order_market.marketId
+        for details in order_details:
+            order_market = details.OrderMarket
+            order_item = details.OrderItems
+            market_id_str = str(order_market.marketId)
 
-            if market_id not in markets_dict:
-                markets_dict[market_id] = {
-                    "marketId": market.marketId,
-                    "marketName": market.marketName,
+            if market_id_str not in markets_dict:
+                markets_dict[market_id_str] = {
+                    "marketId": order_market.marketId,
                     "status": order_market.status,
                     "totalPrice": float(order_market.totalPrice),
                     "items": []
                 }
 
-                markets_dict[market_id]["items"].append({
-                    "productId": product.id,
-                    "name": product.name,
+                markets_dict[market_id_str]["items"].append({
+                    "productId": order_item.productId,
+                    "name": product_info['name'],
                     "quantity": order_item.quantity,
                     "priceAtPurchase": float(order_item.priceAtPurchase)
                 })

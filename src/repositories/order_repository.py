@@ -1,12 +1,9 @@
-from datetime import date
 from decimal import Decimal
 from typing import Sequence
 from sqlalchemy import select, delete, func, Row
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from src.models.cart_items import CartItems
-from src.models.market import Market
-from src.models.product import Product
 from src.models.order import Order, OrderStatus
 from src.models.order_market import OrderMarket
 from src.models.order_item import OrderItems
@@ -97,11 +94,9 @@ class OrderRepository:
 
     async def get_order_details(self, order_id: UUID, user_id: UUID) -> Sequence[Row]:
         query = (
-            select(Order, OrderMarket, OrderItems, Product, Market)
+            select(Order, OrderMarket, OrderItems)
             .join(OrderMarket, OrderMarket.orderId == Order.orderId)
             .join(OrderItems, OrderItems.orderMarketId == OrderMarket.id)
-            .join(Product, Product.id == OrderItems.productId)
-            .join(Market, Market.marketId == OrderMarket.marketId)
         ).where(Order.userId == user_id, Order.orderId == order_id)
 
         result = await self.session.execute(query)

@@ -1,6 +1,5 @@
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.core.exceptions import NotFoundError
 from src.schemas.user_schemas import UserMeResponseSchema
 from src.repositories.user_repository import UserRepository as userrepo
 

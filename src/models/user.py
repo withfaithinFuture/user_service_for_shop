@@ -23,6 +23,5 @@ class User(Base):
     createdAt: Mapped[datetime] = mapped_column(sa.TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
-    market = relationship('Market', back_populates='user')
     cart = relationship('Cart', back_populates='user', uselist=False) #1k1
     orders = relationship('Order', back_populates='user', lazy='selectin')

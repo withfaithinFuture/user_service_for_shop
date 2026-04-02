@@ -1,3 +1,5 @@
+import os
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -7,8 +9,6 @@ from sqlalchemy import pool
 from alembic import context
 from src.db.base_service import Base
 from src.models.user import User
-from src.models.product import Product
-from src.models.market import Market
 from src.models.cart import Cart
 from src.models.cart_items import CartItems
 from src.models.order import Order
@@ -20,6 +20,11 @@ from src.models.user_token import UserToken
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+database_url = os.getenv("ALEMBIC_URL")
+
+if database_url:
+    config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

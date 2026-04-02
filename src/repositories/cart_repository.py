@@ -3,8 +3,6 @@ from sqlalchemy import select, func, Row, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from src.models.cart_items import CartItems
-from src.models.market import Market
-from src.models.product import Product
 from src.models.cart import Cart
 
 
@@ -46,17 +44,13 @@ class CartRepository:
 
 
     async def get_cart_items(self, user_id: UUID) -> Sequence[Row[tuple[Any, Any, Any]]]:
+
         query = (
-            select(CartItems, Product, Market)
-            .join(Cart, Cart.id == CartItems.cartId)
-            .join(Product, Product.id == CartItems.productId)
-            .join(Market, Market.marketId == Product.marketId)
-            .where(Cart.userId == user_id)
+            select(CartItems).join(Cart, Cart.id == CartItems.cartId).where(Cart.userId == user_id)
         )
 
         result = await self.session.execute(query)
-
-        return result.all()
+        return result.scalar_one_or_none()
 
 
     async def update_items_quantity(self, user_id: UUID, product_id: UUID, quantity: int) -> tuple[int, float]:
@@ -71,29 +65,12 @@ class CartRepository:
             ).values(quantity=quantity)
         )
 
-        result_upd = await self.session.execute(query_update)
+        await self.session.execute(query_update)
         await self.session.flush()
 
-        query_totals = (
-            select(
-                func.coalesce(func.sum(CartItems.quantity), 0).label('cartCount'),
-                func.coalesce(func.sum(CartItems.quantity * Product.price), 0).label('totalPrice')
-            ).join(Product, Product.id == CartItems.productId)
-            .where(CartItems.cartId == cart.id)
-        )
 
-        result_totals = await self.session.execute(query_totals)
-        await self.session.flush()
-
-        total = result_totals.first()
-
-        cart_cnt = 0
-        total_price = 0.0
-        if total:
-            cart_cnt = total.cartCount
-            total_price = float(total.totalPrice)
-
-        return cart_cnt, total_price
+        query_cnt = select(func.coalesce(func.sum(CartItems.quantity), 0)).where(CartItems.cartId == cart.id)
+        return await self.session.scalar(query_cnt)
 
 
     async def delete_cart_item(self, user_id: UUID, product_id: UUID) -> tuple[int, float]:
@@ -112,19 +89,6 @@ class CartRepository:
         await self.session.execute(query_delete)
         await self.session.flush()
 
-        query_totals = select(
-            func.coalesce(func.sum(CartItems.quantity), 0).label('cartCount'),
-            func.coalesce(func.sum(CartItems.quantity * Product.price), 0).label('totalPrice')
-        ).select_from(CartItems).join(Product, Product.id == CartItems.productId).where(CartItems.cartId == cart.id)
+        query_cnt = select(func.coalesce(func.sum(CartItems.quantity), 0)).where(CartItems.cartId == cart.id)
 
-        result_totals = await self.session.execute(query_totals)
-        data = result_totals.first()
-
-        await self.session.flush()
-
-        cart_cnt, total_price = 0, 0.0
-        if data:
-            cart_cnt = data.cartCount
-            total_price = float(data.totalPrice)
-
-        return cart_cnt, total_price
+        return await self.session.scalar(query_cnt)
