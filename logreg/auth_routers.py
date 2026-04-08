@@ -31,12 +31,13 @@ async def register(
         "token": result
     }
 
+
 @router.post("/login", response_model=AuthResponse)
 async def login(
     request: LoginRequest,
     session: AsyncSession = Depends(get_session)
 ):
-    """Авторизация (получение токена)"""
+
     auth_service = AuthService(session)
     user, result = await auth_service.login(request)
 
@@ -53,6 +54,7 @@ async def login(
         },
         "token": result
     }
+
 
 @router.get("/me", response_model=UserResponseSchema)
 async def get_auth_me(current_user: User = Depends(get_current_user)):
