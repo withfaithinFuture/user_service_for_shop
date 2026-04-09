@@ -7,9 +7,9 @@ from logreg.security import get_current_user
 from src.models.user import User
 
 
-router = APIRouter(prefix="/api/auth", tags=["auth"])
+router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
-@router.post("/register", response_model=AuthResponse)
+@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=AuthResponse, description="Создание нового юзера и возвращение токена доступа")
 async def register(
     request: RegisterRequest,
     session: AsyncSession = Depends(get_session)
@@ -32,7 +32,7 @@ async def register(
     }
 
 
-@router.post("/login", response_model=AuthResponse)
+@router.post("/login", response_model=AuthResponse, description="Вход в систему, возвращение токена доступа")
 async def login(
     request: LoginRequest,
     session: AsyncSession = Depends(get_session)
@@ -56,7 +56,7 @@ async def login(
     }
 
 
-@router.get("/me", response_model=UserResponseSchema)
+@router.get("/me", status_code=status.HTTP_200_OK, response_model=UserResponseSchema, description="Возвращение информации о текущем авторизованном юзере")
 async def get_auth_me(current_user: User = Depends(get_current_user)):
     return {
         "userId": current_user.userId,
