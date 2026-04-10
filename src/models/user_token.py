@@ -6,10 +6,14 @@ from src.db.base_service import Base
 
 
 class UserToken(Base):
-    __tablename__ = 'user_tokens'
+    __tablename__ = "user_tokens"
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    userId: Mapped[UUID] = mapped_column(sa.ForeignKey('users.userId', ondelete='CASCADE'), nullable=False)
+    userId: Mapped[UUID] = mapped_column(
+        sa.ForeignKey("users.userId", ondelete="CASCADE"), nullable=False
+    )
     token: Mapped[str] = mapped_column(sa.String, unique=True, index=True)
     expiresAt: Mapped[datetime] = mapped_column(sa.TIMESTAMP(timezone=True))
-    createdAt: Mapped[datetime] = mapped_column(sa.TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc))
+    createdAt: Mapped[datetime] = mapped_column(
+        sa.TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )

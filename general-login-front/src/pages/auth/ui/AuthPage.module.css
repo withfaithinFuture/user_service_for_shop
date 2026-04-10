@@ -1,0 +1,121 @@
+.root {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  height: 650px;
+
+  border-radius: 20px;
+  overflow: hidden;
+
+  display: flex;
+
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.25),
+    0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.imagePanel {
+  width: 50%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #6c5ce7, #00b894);
+}
+
+.image {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  background-size: cover;
+  background-position: center;
+
+  transition: opacity 0.6s ease-in-out;
+}
+
+.loginImage {
+  background-image: url("/auth-login.png");
+  opacity: 1;
+}
+
+.registerImage {
+  background-image: url("/auth-register.png");
+  opacity: 0;
+}
+
+.formPanel {
+  width: 50%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: white;
+
+  transition: transform 0.6s ease-in-out;
+}
+
+.formWrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.formWrapper > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  padding: 60px;
+  box-sizing: border-box;
+
+  transition:
+    transform 0.6s ease-in-out,
+    opacity 0.6s ease-in-out;
+}
+
+.formWrapper > *:first-child {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.formWrapper > *:last-child {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.registerMode .formPanel {
+  transform: translateX(-100%);
+}
+
+.registerMode .imagePanel {
+  transform: translateX(100%);
+}
+
+.registerMode .loginImage {
+  opacity: 0;
+}
+
+.registerMode .registerImage {
+  opacity: 1;
+}
+
+.registerMode .formWrapper > *:first-child {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.registerMode .formWrapper > *:last-child {
+  transform: translateX(0);
+  opacity: 1;
+}

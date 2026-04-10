@@ -6,12 +6,11 @@ from src.db.base_service import Base
 
 
 class CartItems(Base):
-    __tablename__ = 'cartItems'
+    __tablename__ = "cartItems"
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    cartId: Mapped[UUID] = mapped_column(ForeignKey('cart.id'), default=uuid4)
+    cartId: Mapped[UUID] = mapped_column(ForeignKey("cart.id"), default=uuid4)
     productId: Mapped[UUID] = mapped_column(sa.UUID, nullable=False)
     quantity: Mapped[int] = mapped_column(sa.INT)
 
-
-    cart = relationship('Cart', back_populates='cart_items')
+    cart = relationship("Cart", back_populates="cart_items")

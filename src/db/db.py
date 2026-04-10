@@ -2,10 +2,11 @@ from typing import Any, AsyncGenerator
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession, create_async_engine
 from src.app.config import Settings
 
-
 settings = Settings()
 
-engine = create_async_engine(str(settings.postgres_url).replace("postgresql://", "postgresql+asyncpg://"))
+engine = create_async_engine(
+    str(settings.postgres_url).replace("postgresql://", "postgresql+asyncpg://")
+)
 new_session = async_sessionmaker(engine, expire_on_commit=False)
 
 

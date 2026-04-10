@@ -4,17 +4,17 @@ from pydantic import BaseModel, Field, ConfigDict
 
 
 class UserSchema(BaseModel):
-    login: str 
-    password: str 
-    firstName: str 
-    lastName: str 
-    patronymic: str 
-    dateOfBirth: datetime.date 
-    city: str 
-    telegram: str 
-    telegramChatId: str 
-    isSeller: str 
-    createdAt: datetime.date 
+    login: str
+    password: str
+    firstName: str
+    lastName: str
+    patronymic: str
+    dateOfBirth: datetime.date
+    city: str
+    telegram: str
+    telegramChatId: str
+    isSeller: str
+    createdAt: datetime.date
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -16,9 +16,9 @@ def get_app() -> FastAPI:
     :return: application.
     """
     app = FastAPI(
-        docs_url='/docs',
-        openapi_url='/openapi.json',
-        swagger_ui_parameters = {"persistAuthorization": True}
+        docs_url="/docs",
+        openapi_url="/openapi.json",
+        swagger_ui_parameters={"persistAuthorization": True},
     )
 
     def custom_openapi():
@@ -49,15 +49,13 @@ def get_app() -> FastAPI:
 
     app.openapi = custom_openapi
 
-
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=['*'],
+        allow_origins=["*"],
         allow_credentials=True,
-        allow_methods=['*'],
-        allow_headers=['*'],
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
-
 
     app.include_router(cart_router)
     app.include_router(order_router)

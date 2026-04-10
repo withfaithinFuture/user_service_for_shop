@@ -5,10 +5,12 @@ from src.models.order import OrderStatus
 
 
 class CreateOrderRequestSchema(BaseModel):
-    deliveryAddress: str = Field(min_length=5, description='Адрес доставки')
-    deliveryCity: str = Field(min_length=2, description='Город доставки')
-    phone: str = Field(min_length=10, description='Номер телефона для связи')
-    deliveryComment: str | None = Field(description='Комментарий к доставке (необязательно)')
+    deliveryAddress: str = Field(min_length=5, description="Адрес доставки")
+    deliveryCity: str = Field(min_length=2, description="Город доставки")
+    phone: str = Field(min_length=10, description="Номер телефона для связи")
+    deliveryComment: str | None = Field(
+        description="Комментарий к доставке (необязательно)"
+    )
 
 
 class OrderItemDetailSchema(BaseModel):

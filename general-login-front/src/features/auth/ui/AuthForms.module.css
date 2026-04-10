@@ -1,0 +1,88 @@
+.form {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+
+.logoContainer {
+  margin-top: -100px; 
+}
+
+.logo {
+  width: 400px;
+  height: auto;
+  display: block;
+}
+
+
+.content {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: -90px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 220px;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+}
+
+
+.title {
+  font-weight: 800;
+  text-align: left;
+}
+
+.subtitle {
+  text-align: left;
+  opacity: 0.7;
+}
+
+.switch {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.switchLink {
+  color: #1976d2;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.switchLink:hover {
+  opacity: 0.8;
+}
+
+.switchLink:active {
+  transform: scale(0.96);
+}
+
+.stepAnimation {
+  animation: smoothFadeSlide 0.35s ease;
+}
+
+@keyframes smoothFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

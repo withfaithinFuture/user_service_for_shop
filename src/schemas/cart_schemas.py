@@ -4,7 +4,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class AddToCartRequestSchema(BaseModel):
     productId: UUID
-    quantity: int = Field(gt=0, description='Количество товара для добавления в корзину')
+    quantity: int = Field(
+        gt=0, description="Количество товара для добавления в корзину"
+    )
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -35,7 +37,7 @@ class CartItemResponseSchema(BaseModel):
 
 class UpdateCartItemRequestSchema(BaseModel):
     productId: UUID
-    quantity: int = Field(gt=0, description='Новое количество товара в корзине')
+    quantity: int = Field(gt=0, description="Новое количество товара в корзине")
 
 
 class UpdateCartItemResponseSchema(BaseModel):

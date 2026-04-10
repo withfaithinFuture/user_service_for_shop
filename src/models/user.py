@@ -7,7 +7,7 @@ from src.db.base_service import Base
 
 
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     userId: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     login: Mapped[str] = mapped_column(sa.String(), unique=True)
@@ -20,8 +20,9 @@ class User(Base):
     telegram: Mapped[None | str] = mapped_column(sa.String(), unique=True)
     telegramChatId: Mapped[None | str] = mapped_column(sa.String(), unique=True)
     isSeller: Mapped[bool] = mapped_column(sa.Boolean, index=True)
-    createdAt: Mapped[datetime] = mapped_column(sa.TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc))
+    createdAt: Mapped[datetime] = mapped_column(
+        sa.TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
 
-
-    cart = relationship('Cart', back_populates='user', uselist=False) #1k1
-    orders = relationship('Order', back_populates='user', lazy='selectin')
+    cart = relationship("Cart", back_populates="user", uselist=False)  # 1k1
+    orders = relationship("Order", back_populates="user", lazy="selectin")

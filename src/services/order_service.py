@@ -10,7 +10,6 @@ from src.repositories.cart_repository import CartRepository
 from src.schemas.order_schemas import CreateOrderRequestSchema
 from src.app.config import settings
 
-
 SELLER_SERVICE_URL = settings.SELLER_SERVICE_URL
 
 
@@ -20,39 +19,49 @@ class OrderService:
         self.order_repository = OrderRepository(session)
         self.cart_repository = CartRepository(session)
 
-
     async def get_products_info(self, products_ids: list[UUID]) -> dict:
         str_ids = [str(id) for id in products_ids]
 
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(f"{SELLER_SERVICE_URL}/info", json={"productIds": str_ids})
+                response = await client.post(
+                    f"{SELLER_SERVICE_URL}/info", json={"productIds": str_ids}
+                )
                 response.raise_for_status()
-                return {product['id']: product for product in response.json()}
+                return {product["id"]: product for product in response.json()}
 
             except Exception:
                 raise HTTPException(status_code=503, detail="Сервис товаров недоступен")
 
-
     async def reserve_products_at_seller(self, items_to_reserve: list[dict]):
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(f"{SELLER_SERVICE_URL}/reserve_products", json={"items": items_to_reserve})
+                response = await client.post(
+                    f"{SELLER_SERVICE_URL}/reserve_products",
+                    json={"items": items_to_reserve},
+                )
 
                 if response.status_code == 400:
-                    raise HTTPException(status_code=400, detail=f"Ошибка резервирования: {response.text}")
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Ошибка резервирования: {response.text}",
+                    )
 
                 response.raise_for_status()
 
             except httpx.RequestError:
-                raise HTTPException(status_code=503, detail="Сервис товаров недоступен для резервирования")
+                raise HTTPException(
+                    status_code=503,
+                    detail="Сервис товаров недоступен для резервирования",
+                )
 
-
-    async def create_order_service(self, user_id: UUID, order_data: CreateOrderRequestSchema) -> dict:
+    async def create_order_service(
+        self, user_id: UUID, order_data: CreateOrderRequestSchema
+    ) -> dict:
         cart_items = await self.cart_repository.get_cart_items(user_id=user_id)
 
         if not cart_items:
-            raise NotFoundError(object_id=user_id, object_type='cart')
+            raise NotFoundError(object_id=user_id, object_type="cart")
 
         product_ids = [item.id for item in cart_items]
         cart_id = cart_items[0][0].cartId
@@ -67,42 +76,50 @@ class OrderService:
             product_data = products_info.get(id_str)
 
             if not product_data:
-                raise HTTPException(status_code=400, detail=f"Товар {id_str} больше недоступен")
+                raise HTTPException(
+                    status_code=400, detail=f"Товар {id_str} больше недоступен"
+                )
 
-            if cart_item.quantity > product_data['available']:
-                raise NotEnoughStockError(product_id=cart_item.productId, available=product_data['available'],
-                                          requested=cart_item.quantity)
+            if cart_item.quantity > product_data["available"]:
+                raise NotEnoughStockError(
+                    product_id=cart_item.productId,
+                    available=product_data["available"],
+                    requested=cart_item.quantity,
+                )
 
-            price = float(product_data['price'])
+            price = float(product_data["price"])
             item_price_total = price * cart_item.quantity
             total_order_price += item_price_total
-            market_id = product_data['marketId']
+            market_id = product_data["marketId"]
 
-            markets_data[market_id]['total'] += item_price_total
-            markets_data[market_id]['items'].append({
-                "product_id": id_str,
-                "quantity": cart_item.quantity,
-                "price": price
-            })
+            markets_data[market_id]["total"] += item_price_total
+            markets_data[market_id]["items"].append(
+                {"product_id": id_str, "quantity": cart_item.quantity, "price": price}
+            )
 
-            items_for_reservation.append({
-                "productId": id_str,
-                "quantity": cart_item.quantity
-            })
+            items_for_reservation.append(
+                {"productId": id_str, "quantity": cart_item.quantity}
+            )
 
         await self.reserve_products_at_seller(items_to_reserve=items_for_reservation)
 
-        order_id = await self.order_repository.create_order_from_cart(user_id=user_id, order_data=order_data, total_order_price=total_order_price, markets_data=markets_data, cart_id=cart_id)
+        order_id = await self.order_repository.create_order_from_cart(
+            user_id=user_id,
+            order_data=order_data,
+            total_order_price=total_order_price,
+            markets_data=markets_data,
+            cart_id=cart_id,
+        )
 
-        return {
-            "success": True,
-            "orderId": str(order_id)
-        }
+        return {"success": True, "orderId": str(order_id)}
 
-
-    async def get_user_orders_service(self, user_id: UUID, page: int, limit: int) -> dict:
+    async def get_user_orders_service(
+        self, user_id: UUID, page: int, limit: int
+    ) -> dict:
         offset = (page - 1) * limit
-        orders, total_orders_cnt = await self.order_repository.get_user_orders(user_id=user_id, offset=offset, limit=limit)
+        orders, total_orders_cnt = await self.order_repository.get_user_orders(
+            user_id=user_id, offset=offset, limit=limit
+        )
         total_pages = math.ceil(total_orders_cnt / limit) if total_orders_cnt > 0 else 1
 
         return {
@@ -113,7 +130,7 @@ class OrderService:
                     "createdAt": order.createdAt,
                     "status": order.status,
                     "totalPrice": float(order.totalPrice),
-                    "totalItems": order.totalItems
+                    "totalItems": order.totalItems,
                 }
                 for order in orders
             ],
@@ -121,16 +138,17 @@ class OrderService:
                 "page": page,
                 "limit": limit,
                 "totalItems": total_orders_cnt,
-                "totalPages": total_pages
-            }
+                "totalPages": total_pages,
+            },
         }
 
-
     async def get_order_details_service(self, order_id: UUID, user_id: UUID) -> dict:
-        order_details = await self.order_repository.get_order_details(order_id=order_id, user_id=user_id)
+        order_details = await self.order_repository.get_order_details(
+            order_id=order_id, user_id=user_id
+        )
 
         if not order_details:
-            raise NotFoundError(object_id=order_id, object_type='Order')
+            raise NotFoundError(object_id=order_id, object_type="Order")
 
         product_ids = list(set([row.OrderItems.productId for row in order_details]))
         product_info = await self.get_products_info(products_ids=product_ids)
@@ -147,15 +165,17 @@ class OrderService:
                     "marketId": order_market.marketId,
                     "status": order_market.status,
                     "totalPrice": float(order_market.totalPrice),
-                    "items": []
+                    "items": [],
                 }
 
-                markets_dict[market_id_str]["items"].append({
-                    "productId": order_item.productId,
-                    "name": product_info['name'],
-                    "quantity": order_item.quantity,
-                    "priceAtPurchase": float(order_item.priceAtPurchase)
-                })
+                markets_dict[market_id_str]["items"].append(
+                    {
+                        "productId": order_item.productId,
+                        "name": product_info["name"],
+                        "quantity": order_item.quantity,
+                        "priceAtPurchase": float(order_item.priceAtPurchase),
+                    }
+                )
 
         return {
             "orderId": first_order.orderId,
@@ -164,5 +184,5 @@ class OrderService:
             "totalPrice": float(first_order.totalPrice),
             "deliveryAddress": first_order.deliveryAddress,
             "deliveryCity": first_order.deliveryCity,
-            "markets": list(markets_dict.values())
+            "markets": list(markets_dict.values()),
         }

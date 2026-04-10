@@ -9,8 +9,9 @@ class UserService:
         self.session = session
         self.repo = userrepo(session)
 
-
-    async def get_user_me_data_service(self, user_id: UUID) -> UserMeResponseSchema | None:
+    async def get_user_me_data_service(
+        self, user_id: UUID
+    ) -> UserMeResponseSchema | None:
         user_data = await self.repo.get_user_me_data(user_id)
         if not user_data:
             return None
