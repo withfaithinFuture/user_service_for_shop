@@ -2,7 +2,6 @@ from uuid import UUID
 from fastapi import APIRouter
 from fastapi.params import Depends
 from starlette import status
-
 from src.services.cart_service import CartService
 from src.schemas.cart_schemas import AddToCartResponseSchema, CartResponseSchema, UpdateCartItemResponseSchema, \
     UpdateCartItemRequestSchema, DeleteCartItemResponseSchema, AddToCartRequestSchema

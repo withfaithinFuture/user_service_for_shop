@@ -25,7 +25,7 @@ class CartService:
 
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(f'{SELLER_SERVICE_URL}/info', json={"productIds": str_ids})
+                response = await client.post(f'{SELLER_SERVICE_URL}/get_products_info', json={"productIds": str_ids})
                 response.raise_for_status()
                 products_data = response.json()
 
@@ -60,7 +60,7 @@ class CartService:
             return {'items': [], 'totalPrice': 0.0}
 
         product_ids = [item.productId for item in cart_items]
-        products_info = self.get_products_from_seller(products_ids=product_ids)
+        products_info = await self.get_products_from_seller(products_ids=product_ids)
 
         items_list = []
         total_price = 0.0

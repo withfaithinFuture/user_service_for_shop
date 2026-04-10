@@ -42,6 +42,7 @@ async def get_current_user(
         if user_id_str is None:
             raise credentials_exception
         user_id = UUID(user_id_str)
+
     except (JWTError, ValueError):
         raise credentials_exception
 
@@ -49,4 +50,5 @@ async def get_current_user(
     user = await session.scalar(stmt)
     if user is None:
         raise credentials_exception
+
     return user

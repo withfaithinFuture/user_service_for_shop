@@ -37,7 +37,7 @@ class OrderService:
     async def reserve_products_at_seller(self, items_to_reserve: list[dict]):
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.post(f"{SELLER_SERVICE_URL}/reserve", json={"items": items_to_reserve})
+                response = await client.post(f"{SELLER_SERVICE_URL}/reserve_products", json={"items": items_to_reserve})
 
                 if response.status_code == 400:
                     raise HTTPException(status_code=400, detail=f"Ошибка резервирования: {response.text}")
