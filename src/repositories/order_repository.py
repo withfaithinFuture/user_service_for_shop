@@ -1,12 +1,14 @@
 from decimal import Decimal
 from typing import Sequence
-from sqlalchemy import select, delete, func, Row
-from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
+
+from sqlalchemy import Row, delete, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.models.cart_items import CartItems
 from src.models.order import Order, OrderStatus
-from src.models.order_market import OrderMarket
 from src.models.order_item import OrderItems
+from src.models.order_market import OrderMarket
 from src.schemas.order_schemas import CreateOrderRequestSchema
 
 
@@ -49,12 +51,11 @@ class OrderRepository:
                 order_item = OrderItems(
                     orderId=new_order.orderId,
                     orderMarketId=order_market.id,
-                    productId=item["product_model"].id,
+                    productId=item["product_id"],
                     quantity=item["quantity"],
                     priceAtPurchase=item["price"],
                 )
                 self.session.add(order_item)
-                item["product_model"].available -= item["quantity"]
 
         await self.session.execute(delete(CartItems).where(CartItems.cartId == cart_id))
 
@@ -98,8 +99,8 @@ class OrderRepository:
             select(Order, OrderMarket, OrderItems)
             .join(OrderMarket, OrderMarket.orderId == Order.orderId)
             .join(OrderItems, OrderItems.orderMarketId == OrderMarket.id)
-        ).where(Order.userId == user_id, Order.orderId == order_id)
+            .where(Order.userId == user_id, Order.orderId == order_id)
+        )
 
         result = await self.session.execute(query)
-
         return result.all()

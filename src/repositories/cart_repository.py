@@ -1,9 +1,11 @@
 from typing import Any, Sequence
-from sqlalchemy import select, func, Row, update, delete
-from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
-from src.models.cart_items import CartItems
+
+from sqlalchemy import Row, delete, func, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.models.cart import Cart
+from src.models.cart_items import CartItems
 
 
 class CartRepository:
@@ -59,7 +61,7 @@ class CartRepository:
         )
 
         result = await self.session.execute(query)
-        return result.scalar_one_or_none()
+        return result.scalars().all()
 
     async def update_items_quantity(
         self, user_id: UUID, product_id: UUID, quantity: int
@@ -82,13 +84,11 @@ class CartRepository:
         )
         return await self.session.scalar(query_cnt)
 
-    async def delete_cart_item(
-        self, user_id: UUID, product_id: UUID
-    ) -> tuple[int, float]:
+    async def delete_cart_item(self, user_id: UUID, product_id: UUID) -> int:
         query_cart = select(Cart).where(Cart.userId == user_id)
         cart = await self.session.scalar(query_cart)
         if not cart:
-            return 0, 0.0
+            return 0
 
         query_delete = delete(CartItems).where(
             CartItems.cartId == cart.id, CartItems.productId == product_id

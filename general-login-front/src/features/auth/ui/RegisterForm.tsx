@@ -25,7 +25,6 @@ interface FormData {
   birthDate: string;
   city: string;
   telegram: string;
-  marketName: string;
 }
 
 export const RegisterForm = ({ onSwitch }: Props) => {
@@ -42,7 +41,6 @@ export const RegisterForm = ({ onSwitch }: Props) => {
     birthDate: "",
     city: "",
     telegram: "",
-    marketName: "",
   });
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
@@ -126,10 +124,6 @@ export const RegisterForm = ({ onSwitch }: Props) => {
       } else if (!/^@?[A-Za-z0-9_]{5,32}$/.test(form.telegram)) {
         newErrors.telegram = "Invalid Telegram username";
       }
-
-      if (isSeller && !form.marketName.trim()) {
-        newErrors.marketName = "Market name is required";
-      }
     }
 
     setErrors(newErrors);
@@ -160,14 +154,15 @@ export const RegisterForm = ({ onSwitch }: Props) => {
         city: form.city,
         telegram: form.telegram,
         isSeller,
-        marketName: form.marketName,
       });
 
       tokenService.set(data.token);
 
-      console.log("User:", data.user);
+      const targetUrl = data.user.isSeller
+        ? "http://localhost:5172"
+        : "http://localhost:5171";
 
-      window.location.href = "/";
+      window.location.href = `${targetUrl}?token=${data.token}`;
     } catch (e: any) {
       alert(e.response?.data?.detail || "Register failed");
     }
@@ -293,17 +288,6 @@ export const RegisterForm = ({ onSwitch }: Props) => {
                 }
                 label="Register as Seller"
               />
-
-              {isSeller && (
-                <TextField
-                  label="Market Name"
-                  fullWidth
-                  value={form.marketName}
-                  onChange={(e) => handleChange("marketName", e.target.value)}
-                  error={!!errors.marketName}
-                  helperText={errors.marketName}
-                />
-              )}
             </>
           )}
         </Box>

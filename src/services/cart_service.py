@@ -1,11 +1,13 @@
-from src.app.config import settings
-from fastapi import HTTPException
 from uuid import UUID
+
 import httpx
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.app.config import settings
+from src.core.exceptions import NotEnoughStockError, NotFoundError
 from src.repositories.cart_repository import CartRepository
-from src.schemas.cart_schemas import UpdateCartItemRequestSchema, AddToCartRequestSchema
-from src.core.exceptions import NotFoundError, NotEnoughStockError
+from src.schemas.cart_schemas import AddToCartRequestSchema, UpdateCartItemRequestSchema
 
 SELLER_SERVICE_URL = settings.SELLER_SERVICE_URL
 
@@ -25,7 +27,7 @@ class CartService:
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.post(
-                    f"{SELLER_SERVICE_URL}/get_products_info",
+                    f"{SELLER_SERVICE_URL}/products/by-ids",
                     json={"productIds": str_ids},
                 )
                 response.raise_for_status()
@@ -86,7 +88,8 @@ class CartService:
                     "price": price,
                     "available": prod_data["available"],
                     "quantity": item.quantity,
-                    "marketId": prod_data["marketId"],
+                    "img": prod_data.get("img"),
+                    "market": prod_data.get("market"),
                 }
             )
 

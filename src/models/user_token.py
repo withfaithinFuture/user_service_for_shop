@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
+from uuid import UUID, uuid4
+
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
-from uuid import UUID, uuid4
-from datetime import datetime, timezone
+
 from src.db.base_service import Base
 
 

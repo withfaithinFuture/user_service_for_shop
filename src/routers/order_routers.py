@@ -1,15 +1,16 @@
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, Query
 from starlette import status
 
+from logreg.security import get_current_user
 from src.app.dependencies import get_order_service
+from src.models.user import User
 from src.schemas.order_schemas import (
     CreateOrderRequestSchema,
     CreateOrderResponseSchema,
 )
 from src.services.order_service import OrderService
-from logreg.security import get_current_user
-from src.models.user import User
 
 router = APIRouter(prefix="/api/v1/orders", tags=["orders"])
 

@@ -1,8 +1,10 @@
 from decimal import Decimal
-from uuid import uuid4, UUID
+from uuid import UUID, uuid4
+
 import sqlalchemy as sa
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src.db.base_service import Base
 
 

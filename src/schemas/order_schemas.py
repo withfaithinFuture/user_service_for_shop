@@ -1,7 +1,9 @@
-from pydantic import BaseModel, Field, ConfigDict
 from uuid import UUID
-from src.schemas.pagination_schemas import PaginationSchema
+
+from pydantic import BaseModel, ConfigDict, Field
+
 from src.models.order import OrderStatus
+from src.schemas.pagination_schemas import PaginationSchema
 
 
 class CreateOrderRequestSchema(BaseModel):
@@ -17,7 +19,7 @@ class OrderItemDetailSchema(BaseModel):
     productId: UUID
     name: str
     quantity: int
-    buy_price: float
+    priceAtPurchase: float
 
 
 class OrderMarketDetailItemSchema(BaseModel):

@@ -1,11 +1,11 @@
 from fastapi import APIRouter
 from fastapi.params import Depends
 
+from logreg.security import get_current_user
+from src.app.dependencies import get_user_service
 from src.core.exceptions import NotFoundError
 from src.models.user import User
-from src.app.dependencies import get_user_service
 from src.services.user_service import UserService
-from logreg.security import get_current_user
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 

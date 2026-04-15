@@ -1,4 +1,5 @@
 from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -30,7 +31,7 @@ class CartItemResponseSchema(BaseModel):
     available: int
     quantity: int
     img: str
-    market: CartMarketSchema
+    market: CartMarketSchema | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

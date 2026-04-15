@@ -1,0 +1,27 @@
+[run]
+branch = True
+source = src
+concurrency = greenlet, thread
+parallel = True
+data_file = .coverage
+
+[report]
+show_missing = True
+skip_covered = False
+skip_empty = True
+precision = 2
+
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    @abstractmethod
+    raise HTTPException
+    raise NotFoundError
+    raise NotEnoughStockError
+
+[html]
+directory = htmlcov

@@ -1,21 +1,22 @@
 import os
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+
+from sqlalchemy import engine_from_config, pool
+
 from alembic import context
 from src.db.base_service import Base
-from src.models.user import User
 from src.models.cart import Cart
 from src.models.cart_items import CartItems
 from src.models.order import Order
-from src.models.order_market import OrderMarket
 from src.models.order_item import OrderItems
+from src.models.order_market import OrderMarket
+from src.models.user import User
 from src.models.user_token import UserToken
-
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -81,9 +82,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
