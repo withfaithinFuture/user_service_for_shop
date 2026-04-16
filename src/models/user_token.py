@@ -14,7 +14,7 @@ class UserToken(Base):
     userId: Mapped[UUID] = mapped_column(
         sa.ForeignKey("users.userId", ondelete="CASCADE"), nullable=False
     )
-    token: Mapped[str] = mapped_column(sa.String, unique=True, index=True)
+    token: Mapped[str] = mapped_column(sa.String, index=True)
     expiresAt: Mapped[datetime] = mapped_column(sa.TIMESTAMP(timezone=True))
     createdAt: Mapped[datetime] = mapped_column(
         sa.TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc)
