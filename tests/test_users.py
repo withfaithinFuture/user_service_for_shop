@@ -22,5 +22,8 @@ async def test_get_me_unsuccess(client, auth_token):
 
 async def test_get_me_unauthorized(client):
     response = await client.get("/api/v1/auth/me")
-
     assert response.status_code == 401
+
+
+async def test_tests(client):
+    pass
