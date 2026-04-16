@@ -19,3 +19,13 @@ repos:
     hooks:
       - id: black
         language_version: python3.12.9
+
+  - repo: local
+    hooks:
+      - id: pytest-docker
+        name: pytest-in-docker
+        entry: docker-compose exec -T api pytest tests/
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [push]
